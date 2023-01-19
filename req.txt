@@ -1,5 +1,4 @@
 django
-
 djangorestframework
 djangorestframework-simplejwt
 psycopg2-binary
@@ -9,3 +8,5 @@ celery
 redis
 gunicorn
 drf-yasg
+django-filter
+pillow

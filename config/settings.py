@@ -24,7 +24,9 @@ INSTALLED_APPS = [
     'drf_yasg',
 
     'account',
-
+    'main',
+    'review',
+    'heroes',
 ]
 
 MIDDLEWARE = [
