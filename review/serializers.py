@@ -1,31 +1,40 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Comment, Rating
+
+from rest_framework import serializers
+from .models import Like, Rating, Comment
 
 
-class CommentSerializer(ModelSerializer):
+class LikeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Comment
-        exclude = ('author',)
-    
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
-        request = self.context.get("request") # получаем запрос из view
-        attrs['author'] = request.user
-        return attrs
+        model = Like
+        fields = ('id', 'user', 'product')
 
     def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        del rep['product']
-        rep['author'] = instance.author.email
-        return rep
+        representation = super().to_representation(instance)
+        representation['user_username'] = instance.user.username
+        representation['product_name'] = instance.product.name
+        return representation
 
-class RatingSerializer(ModelSerializer):
+class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        exclude = ('author',)
+        fields = ('id', 'user', 'product', 'rating')
 
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
-        request = self.context.get("request") # получаем запрос из view
-        attrs['author'] = request.user
-        return attrs
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user_username'] = instance.user.username
+        representation['product_name'] = instance.product.name
+        return representation
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('id', 'user', 'product', 'text')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user_username'] = instance.user.username
+        representation['product_name'] = instance.product.name
+        return representation
+
+

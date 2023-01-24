@@ -1,32 +1,25 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from drf_yasg.utils import swagger_auto_schema
-from .serializers import CommentSerializer, RatingSerializer
-from .models import Comment, Rating
-from .permissions import IsAuthorOrReadOnly
+from rest_framework import viewsets
+from .models import Like, Rating, Comment
+from .serializers import LikeSerializer, RatingSerializer, CommentSerializer
 
+class LikeViewSet(viewsets.ModelViewSet):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
 
-class CommentViewSet(ModelViewSet):
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class RatingViewSet(viewsets.ModelViewSet):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly]
 
-class CreateRatingAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-    @swagger_auto_schema(request_body=RatingSerializer())
-    def post(self, request):
-        user = request.user
-        ser = RatingSerializer(data=request.data, context={"request":request})
-        ser.is_valid(raise_exception=True)
-        product_id = request.data.get("product")
-        if Rating.objects.filter(author=user, product__id=product_id).exists():
-            rating = Rating.objects.get(author=user, product__id=product_id)
-            rating.value = request.data.get("value")
-            rating.save()
-        else:
-            # Rating.objects.create(user)
-            ser.save()
-        return Response(status=201)
